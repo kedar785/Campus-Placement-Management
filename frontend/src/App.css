@@ -1,0 +1,175 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Arial, sans-serif;
+}
+
+.app {
+  min-height: 100vh;
+  background: #f4f7fb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-container {
+  width: 900px;
+  min-height: 550px;
+  display: flex;
+  background: white;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.12);
+}
+
+/* Left Section */
+
+.left-section {
+  width: 50%;
+  padding: 60px 45px;
+  background: #2563eb;
+  color: white;
+}
+
+.left-section h1 {
+  font-size: 38px;
+  margin-bottom: 8px;
+}
+
+.left-section h2 {
+  font-size: 27px;
+  margin-bottom: 25px;
+}
+
+.left-section p {
+  line-height: 1.7;
+  font-size: 16px;
+}
+
+.features {
+  margin-top: 45px;
+}
+
+.features p {
+  margin: 18px 0;
+}
+
+/* Login Card */
+
+.login-card {
+  width: 50%;
+  padding: 55px 45px;
+}
+
+.login-card h2 {
+  font-size: 30px;
+  color: #1f2937;
+}
+
+.subtitle {
+  color: #6b7280;
+  margin-top: 8px;
+  margin-bottom: 25px;
+}
+
+/* Role Buttons */
+
+.role-buttons {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 25px;
+}
+
+.role-buttons button {
+  width: 50%;
+  padding: 11px;
+  border: 1px solid #d1d5db;
+  background: white;
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+.role-buttons button.active {
+  background: #2563eb;
+  color: white;
+  border-color: #2563eb;
+}
+
+/* Form */
+
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+form label {
+  margin-bottom: 7px;
+  color: #374151;
+  font-weight: bold;
+}
+
+form input {
+  padding: 13px;
+  margin-bottom: 18px;
+  border: 1px solid #d1d5db;
+  border-radius: 7px;
+  font-size: 15px;
+}
+
+form input:focus {
+  outline: 2px solid #93c5fd;
+}
+
+.login-button {
+  padding: 13px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 7px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 5px;
+}
+
+.login-button:hover {
+  background: #1d4ed8;
+}
+
+.register {
+  text-align: center;
+  margin-top: 22px;
+  color: #6b7280;
+}
+
+.register span {
+  color: #2563eb;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+/* Mobile */
+
+@media (max-width: 750px) {
+  .login-container {
+    width: 95%;
+    flex-direction: column;
+  }
+
+  .left-section,
+  .login-card {
+    width: 100%;
+  }
+
+  .left-section {
+    padding: 35px;
+  }
+
+  .login-card {
+    padding: 35px;
+  }
+}
