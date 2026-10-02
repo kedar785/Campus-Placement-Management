@@ -1,8 +1,19 @@
 import { useState } from "react";
 import "./App.css";
+import StudentRegister from "./pages/StudentRegister";
 
 function App() {
   const [role, setRole] = useState("Student");
+  const [showRegister, setShowRegister] = useState(false);
+
+  // Registration page
+  if (showRegister) {
+    return (
+      <StudentRegister
+        onBack={() => setShowRegister(false)}
+      />
+    );
+  }
 
   return (
     <div className="app">
@@ -63,7 +74,13 @@ function App() {
           </form>
 
           <p className="register">
-            New student? <span>Register here</span>
+            New student?{" "}
+            <span
+              onClick={() => setShowRegister(true)}
+              style={{ cursor: "pointer" }}
+            >
+              Register here
+            </span>
           </p>
         </div>
 
