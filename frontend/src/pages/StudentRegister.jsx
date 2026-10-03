@@ -1,6 +1,6 @@
 import { useState } from "react";
 
- function StudentRegister({ onBack }) {
+function StudentRegister({ onBack }) {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -112,6 +112,10 @@ import { useState } from "react";
 
           <button type="submit">
             Create Account
+          </button>
+
+          <button type="button" onClick={onBack}>
+            Back to Login
           </button>
 
         </form>

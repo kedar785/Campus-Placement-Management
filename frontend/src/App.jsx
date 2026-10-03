@@ -1,11 +1,11 @@
 import { useState } from "react";
 import "./App.css";
 import StudentRegister from "./pages/StudentRegister";
-
+import StudentDashboard from "./pages/StudentDashboard";
 function App() {
   const [role, setRole] = useState("Student");
   const [showRegister, setShowRegister] = useState(false);
-
+const [showDashboard, setShowDashboard] = useState(false);
   // Registration page
   if (showRegister) {
     return (
@@ -14,7 +14,9 @@ function App() {
       />
     );
   }
-
+if (showDashboard) {
+  return <StudentDashboard />;
+}
   return (
     <div className="app">
       <div className="login-container">
@@ -68,9 +70,13 @@ function App() {
               placeholder="Enter your password"
             />
 
-            <button type="submit" className="login-button">
-              Login as {role}
-            </button>
+           <button
+  type="button"
+  className="login-button"
+  onClick={() => setShowDashboard(true)}
+>
+  Login as {role}
+</button>
           </form>
 
           <p className="register">
