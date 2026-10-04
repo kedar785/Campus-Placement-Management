@@ -2,10 +2,12 @@ import { useState } from "react";
 import "./App.css";
 import StudentRegister from "./pages/StudentRegister";
 import StudentDashboard from "./pages/StudentDashboard";
+import AvailableJobs from "./pages/AvailableJobs";
 function App() {
   const [role, setRole] = useState("Student");
   const [showRegister, setShowRegister] = useState(false);
 const [showDashboard, setShowDashboard] = useState(false);
+const [showJobs, setShowJobs] = useState(false);
   // Registration page
   if (showRegister) {
     return (
@@ -14,8 +16,26 @@ const [showDashboard, setShowDashboard] = useState(false);
       />
     );
   }
+   if (showJobs) {
+  return (
+    <AvailableJobs
+      onBack={() => {
+        setShowJobs(false);
+        setShowDashboard(true);
+      }}
+    />
+  );
+}
+
 if (showDashboard) {
-  return <StudentDashboard />;
+  return (
+    <StudentDashboard
+      onViewJobs={() => {
+        setShowDashboard(false);
+        setShowJobs(true);
+      }}
+    />
+  );
 }
   return (
     <div className="app">
