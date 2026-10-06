@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-function AvailableJobs({ onBack }) {
+function AvailableJobs({ onBack, onApply }) {
   const [appliedJobs, setAppliedJobs] = useState([]);
 
   const jobs = [
@@ -38,12 +38,13 @@ function AvailableJobs({ onBack }) {
     },
   ];
 
-  const handleApply = (company) => {
-    if (!appliedJobs.includes(company)) {
-      setAppliedJobs([...appliedJobs, company]);
-    }
-  };
+ const handleApply = (job) => {
+  if (!appliedJobs.includes(job.company)) {
+    setAppliedJobs([...appliedJobs, job.company]);
 
+    onApply(job);
+  }
+};
   return (
     <div className="jobs-page">
 
@@ -100,7 +101,7 @@ function AvailableJobs({ onBack }) {
 
               <button
                 className="apply-button"
-                onClick={() => handleApply(job.company)}
+               onClick={() => handleApply(job)}
                 disabled={isApplied}
               >
                 {isApplied ? "✓ Applied" : "Apply Now →"}

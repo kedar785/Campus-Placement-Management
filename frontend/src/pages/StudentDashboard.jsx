@@ -1,6 +1,11 @@
 import "./StudentDashboard.css";
 
-function StudentDashboard({ onViewJobs }) {
+function StudentDashboard({
+  onViewJobs,
+  onViewApplications,
+  onViewProfile,
+  onViewEligibility,
+}) {
   return (
     <div className="student-dashboard">
 
@@ -14,9 +19,9 @@ function StudentDashboard({ onViewJobs }) {
         <nav>
           <button className="nav-item active">🏠 Dashboard</button>
 
-          <button className="nav-item">
-            👤 My Profile
-          </button>
+         <button className="nav-item" onClick={onViewProfile}>
+  👤 My Profile
+</button>
 
           <button
             className="nav-item"
@@ -25,13 +30,13 @@ function StudentDashboard({ onViewJobs }) {
             💼 Available Jobs
           </button>
 
-          <button className="nav-item">
-            📝 My Applications
-          </button>
+         <button className="nav-item" onClick={onViewApplications}>
+  📝 My Applications
+</button>
 
-          <button className="nav-item">
-            ✅ Eligibility
-          </button>
+      <button className="nav-item" onClick={onViewEligibility}>
+  ✅ Eligibility
+</button>
 
           <button className="nav-item">
             🔔 Notifications
@@ -145,10 +150,9 @@ function StudentDashboard({ onViewJobs }) {
               <p>
                 View and update your academic and personal information.
               </p>
-
-              <button>
-                View Profile →
-              </button>
+            <button onClick={onViewProfile}>
+  View Profile →
+</button>
 
             </div>
 
@@ -182,9 +186,9 @@ function StudentDashboard({ onViewJobs }) {
                 Track your applications and recruitment status.
               </p>
 
-              <button>
-                View Applications →
-              </button>
+             <button onClick={onViewApplications}>
+  View Applications →
+</button>
 
             </div>
 
@@ -200,9 +204,9 @@ function StudentDashboard({ onViewJobs }) {
                 Check whether you meet company eligibility criteria.
               </p>
 
-              <button>
-                Check Now →
-              </button>
+              <button onClick={onViewEligibility}>
+  Check Now →
+</button>
 
             </div>
 

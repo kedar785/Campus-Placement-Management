@@ -1,0 +1,126 @@
+.company-page {
+  min-height: 100vh;
+  padding: 40px;
+  background: #f5f7fb;
+}
+
+.company-header {
+  max-width: 1100px;
+  margin: 0 auto 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.company-header h1 {
+  margin: 0;
+  font-size: 30px;
+}
+
+.company-header p {
+  margin-top: 8px;
+  color: #666;
+}
+
+.company-actions {
+  max-width: 1100px;
+  margin: 0 auto 25px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.add-company-button {
+  border: none;
+  background: #2563eb;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.add-company-button:hover {
+  background: #1d4ed8;
+}
+
+.company-grid {
+  max-width: 1100px;
+  margin: auto;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.company-card {
+  background: white;
+  padding: 25px;
+  border-radius: 16px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+}
+
+.company-logo {
+  width: 55px;
+  height: 55px;
+  border-radius: 12px;
+  background: #2563eb;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+.company-card h2 {
+  margin: 0 0 5px;
+}
+
+.company-card h3 {
+  margin: 0 0 20px;
+  color: #555;
+  font-weight: 500;
+}
+
+.company-details p {
+  margin: 10px 0;
+  color: #555;
+}
+
+.company-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.company-buttons button {
+  border: none;
+  padding: 9px 16px;
+  border-radius: 7px;
+  cursor: pointer;
+}
+
+.company-buttons button:first-child {
+  background: #e8f0ff;
+  color: #2563eb;
+}
+
+.company-buttons button:last-child {
+  background: #feecec;
+  color: #dc2626;
+}
+
+@media (max-width: 700px) {
+  .company-page {
+    padding: 20px;
+  }
+
+  .company-header {
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .company-grid {
+    grid-template-columns: 1fr;
+  }
+}
