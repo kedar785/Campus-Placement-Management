@@ -1,25 +1,49 @@
 import "./AdminDashboard.css";
-import JobManagement from "./pages/JobManagement";
-    function AdminDashboard({ onBack, onViewCompanies, onViewJobs }) {
+
+function AdminDashboard({
+  onBack,
+  onViewCompanies,
+  onViewJobs,
+  onViewStudents,
+  onViewApplications,
+}) {
   return (
     <div className="admin-dashboard">
       <aside className="admin-sidebar">
         <div className="admin-logo">
-          <h2>Campus<span>Place</span></h2>
+          <h2>
+            Campus<span>Place</span>
+          </h2>
           <p>Admin Portal</p>
         </div>
 
         <nav>
-          <button className="admin-nav active">📊 Dashboard</button>
-      <button className="admin-nav" onClick={onViewCompanies}>
-  🏢 Companies
-</button>
+          <button className="admin-nav active">
+            📊 Dashboard
+          </button>
+
+          <button className="admin-nav" onClick={onViewCompanies}>
+            🏢 Companies
+          </button>
+
           <button className="admin-nav" onClick={onViewJobs}>
-  💼 Jobs
-</button>
-          <button className="admin-nav">👨‍🎓 Students</button>
-          <button className="admin-nav">📝 Applications</button>
-          <button className="admin-nav">📈 Reports</button>
+            💼 Jobs
+          </button>
+
+          <button className="admin-nav" onClick={onViewStudents}>
+            👨‍🎓 Students
+          </button>
+
+          <button className="admin-nav" onClick={onViewApplications}>
+            📝 Applications
+          </button>
+
+          <button
+            className="admin-nav"
+            onClick={() => alert("Reports module will be added next.")}
+          >
+            📈 Reports
+          </button>
         </nav>
 
         <button className="admin-logout" onClick={onBack}>
@@ -44,12 +68,10 @@ import JobManagement from "./pages/JobManagement";
         </header>
 
         <section className="admin-welcome">
-          <div>
-            <h2>Welcome, Admin 👋</h2>
-            <p>
-              Manage students, companies, jobs and placement applications.
-            </p>
-          </div>
+          <h2>Welcome, Admin 👋</h2>
+          <p>
+            Manage students, companies, jobs and placement applications.
+          </p>
         </section>
 
         <section className="admin-stats">
@@ -81,29 +103,33 @@ import JobManagement from "./pages/JobManagement";
             <div className="admin-action-card">
               <h3>🏢 Company Management</h3>
               <p>Add and manage recruiting companies.</p>
-             <button onClick={onViewCompanies}>
-  Manage Companies →
-</button>
+              <button onClick={onViewCompanies}>
+                Manage Companies →
+              </button>
             </div>
 
             <div className="admin-action-card">
               <h3>💼 Job Management</h3>
               <p>Create and manage placement opportunities.</p>
               <button onClick={onViewJobs}>
-  Manage Jobs →
-</button>
+                Manage Jobs →
+              </button>
             </div>
 
             <div className="admin-action-card">
               <h3>👨‍🎓 Student Management</h3>
               <p>View registered students and their details.</p>
-              <button>View Students →</button>
+              <button onClick={onViewStudents}>
+                View Students →
+              </button>
             </div>
 
             <div className="admin-action-card">
               <h3>📝 Applications</h3>
-              <p>Track student placement applications.</p>
-              <button>View Applications →</button>
+              <p>Review applications and update student status.</p>
+              <button onClick={onViewApplications}>
+                View Applications →
+              </button>
             </div>
           </div>
         </section>

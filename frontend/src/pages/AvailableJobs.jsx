@@ -1,57 +1,33 @@
 import { useState } from "react";
 
-function AvailableJobs({ onBack, onApply }) {
+function AvailableJobs({ jobs, onBack, onApply }) {
   const [appliedJobs, setAppliedJobs] = useState([]);
 
-  const jobs = [
-    {
-      company: "TCS",
-      role: "Graduate Engineer Trainee",
-      package: "₹7 LPA",
-      location: "Pune",
-      cgpa: "6.5",
-      skills: "Java, SQL, DSA",
-    },
-    {
-      company: "Infosys",
-      role: "System Engineer",
-      package: "₹6.5 LPA",
-      location: "Bengaluru",
-      cgpa: "6.0",
-      skills: "Java, Python, SQL",
-    },
-    {
-      company: "Accenture",
-      role: "Associate Software Engineer",
-      package: "₹5.5 LPA",
-      location: "Indore",
-      cgpa: "6.0",
-      skills: "Java, React, SQL",
-    },
-    {
-      company: "Wipro",
-      role: "Project Engineer",
-      package: "₹4.5 LPA",
-      location: "Hyderabad",
-      cgpa: "6.0",
-      skills: "Java, C++, SQL",
-    },
-  ];
+  const handleApply = (job) => {
+    const jobKey = `${job.company}-${job.role}`;
 
- const handleApply = (job) => {
-  if (!appliedJobs.includes(job.company)) {
-    setAppliedJobs([...appliedJobs, job.company]);
+    if (!appliedJobs.includes(jobKey)) {
+      setAppliedJobs([
+        ...appliedJobs,
+        jobKey,
+      ]);
 
-    onApply(job);
-  }
-};
+      onApply(job);
+    }
+  };
+
   return (
     <div className="jobs-page">
 
+      {/* Header */}
       <div className="jobs-header">
+
         <div>
           <h1>Available Jobs</h1>
-          <p>Explore current campus placement opportunities</p>
+
+          <p>
+            Explore current campus placement opportunities
+          </p>
         </div>
 
         <button
@@ -60,56 +36,87 @@ function AvailableJobs({ onBack, onApply }) {
         >
           ← Dashboard
         </button>
+
       </div>
 
+      {/* Jobs */}
       <div className="jobs-grid">
 
-        {jobs.map((job, index) => {
+        {jobs.length === 0 ? (
+          <div className="no-applications">
+            <h2>No Jobs Available</h2>
 
-          const isApplied = appliedJobs.includes(job.company);
+            <p>
+              Currently there are no placement opportunities.
+            </p>
+          </div>
+        ) : (
 
-          return (
-            <div className="job-card" key={index}>
+          jobs.map((job, index) => {
 
-              <div className="company-logo">
-                {job.company.charAt(0)}
-              </div>
+            const jobKey = `${job.company}-${job.role}`;
 
-              <h2>{job.company}</h2>
+            const isApplied =
+              appliedJobs.includes(jobKey);
 
-              <h3>{job.role}</h3>
-
-              <div className="job-details">
-
-                <p>
-                  💰 <strong>Package:</strong> {job.package}
-                </p>
-
-                <p>
-                  📍 <strong>Location:</strong> {job.location}
-                </p>
-
-                <p>
-                  🎓 <strong>Minimum CGPA:</strong> {job.cgpa}
-                </p>
-
-                <p>
-                  💻 <strong>Skills:</strong> {job.skills}
-                </p>
-
-              </div>
-
-              <button
-                className="apply-button"
-               onClick={() => handleApply(job)}
-                disabled={isApplied}
+            return (
+              <div
+                className="job-card"
+                key={index}
               >
-                {isApplied ? "✓ Applied" : "Apply Now →"}
-              </button>
 
-            </div>
-          );
-        })}
+                {/* Company Logo */}
+                <div className="company-logo">
+                  {job.company.charAt(0)}
+                </div>
+
+                {/* Company */}
+                <h2>{job.company}</h2>
+
+                {/* Role */}
+                <h3>{job.role}</h3>
+
+                {/* Details */}
+                <div className="job-details">
+
+                  <p>
+                    💰 <strong>Package:</strong>{" "}
+                    {job.package}
+                  </p>
+
+                  <p>
+                    📍 <strong>Location:</strong>{" "}
+                    {job.location}
+                  </p>
+
+                  <p>
+                    🎓 <strong>Minimum CGPA:</strong>{" "}
+                    {job.cgpa}
+                  </p>
+
+                  <p>
+                    💻 <strong>Skills:</strong>{" "}
+                    {job.skills}
+                  </p>
+
+                </div>
+
+                {/* Apply Button */}
+                <button
+                  className="apply-button"
+                  onClick={() => handleApply(job)}
+                  disabled={isApplied}
+                >
+                  {isApplied
+                    ? "✓ Applied"
+                    : "Apply Now →"}
+                </button>
+
+              </div>
+            );
+          })
+
+        )}
 
       </div>
 

@@ -11,6 +11,10 @@ function StudentRegister({ onBack }) {
     cgpa: "",
   });
 
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState("");
+
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -18,23 +22,85 @@ function StudentRegister({ onBack }) {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log("Student Registration Data:", formData);
+    setLoading(true);
+    setMessage("");
+    setMessageType("");
 
-    alert("Registration form submitted!");
+    try {
+      const response = await fetch(
+        "http://localhost:5000/api/students/register",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: formData.name.trim(),
+            email: formData.email.trim(),
+            password: formData.password,
+            phone: formData.phone.trim(),
+            branch: formData.course,
+            cgpa: Number(formData.cgpa),
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Registration failed.");
+      }
+
+      setMessage("Registration successful! Your account has been created.");
+      setMessageType("success");
+
+      setFormData({
+        name: "",
+        email: "",
+        password: "",
+        phone: "",
+        college: "",
+        course: "B.Tech CSE",
+        cgpa: "",
+      });
+    } catch (error) {
+      setMessage(
+        error.message === "Failed to fetch"
+          ? "Backend se connection nahi ho pa raha. Please check that the backend is running."
+          : error.message
+      );
+      setMessageType("error");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="register-page">
       <div className="register-card">
-
         <h1>Student Registration</h1>
         <p>Create your placement account</p>
 
-        <form onSubmit={handleSubmit}>
+        {message && (
+          <div
+            role="status"
+            style={{
+              padding: "10px",
+              marginBottom: "15px",
+              borderRadius: "6px",
+              color: messageType === "success" ? "green" : "red",
+              backgroundColor:
+                messageType === "success" ? "#e8f7e8" : "#fdeaea",
+            }}
+          >
+            {message}
+          </div>
+        )}
 
+        <form onSubmit={handleSubmit}>
           <label>Full Name</label>
           <input
             type="text"
@@ -59,9 +125,10 @@ function StudentRegister({ onBack }) {
           <input
             type="password"
             name="password"
-            placeholder="Create password"
+            placeholder="Create password (minimum 8 characters)"
             value={formData.password}
             onChange={handleChange}
+            minLength={8}
             required
           />
 
@@ -110,16 +177,14 @@ function StudentRegister({ onBack }) {
             required
           />
 
-          <button type="submit">
-            Create Account
+          <button type="submit" disabled={loading}>
+            {loading ? "Creating Account..." : "Create Account"}
           </button>
 
-          <button type="button" onClick={onBack}>
+          <button type="button" onClick={onBack} disabled={loading}>
             Back to Login
           </button>
-
         </form>
-
       </div>
     </div>
   );
