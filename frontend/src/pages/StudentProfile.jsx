@@ -1,6 +1,6 @@
 import "./StudentProfile.css";
 
-function StudentProfile({ onBack }) {
+function StudentProfile({ onBack, student }) {
   return (
     <div className="profile-page">
       <div className="profile-header">
@@ -19,7 +19,7 @@ function StudentProfile({ onBack }) {
           <div className="profile-avatar">KB</div>
 
           <div>
-            <h2>Kedar Bais</h2>
+           <h2>{student?.name || "Student"}</h2>
             <p>B.Tech CSE</p>
             <span>Student</span>
           </div>
@@ -36,12 +36,12 @@ function StudentProfile({ onBack }) {
 
             <div>
               <label>Email</label>
-              <p>kedar@example.com</p>
+             <p>{student?.email || "Not provided"}</p>
             </div>
 
             <div>
               <label>Phone Number</label>
-              <p>+91 XXXXX XXXXX</p>
+              <p>{student?.phone || "Not provided"}</p>
             </div>
 
             <div>
@@ -67,7 +67,7 @@ function StudentProfile({ onBack }) {
 
             <div>
               <label>CGPA</label>
-              <p>7.5</p>
+             <p>{student?.cgpa ?? "Not provided"}</p>
             </div>
 
             <div>

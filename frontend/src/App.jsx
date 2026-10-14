@@ -229,6 +229,7 @@ function App() {
   if (showProfile) {
     return (
       <StudentProfile
+       student={currentStudent}
         onBack={() => {
           setShowProfile(false);
           setShowDashboard(true);
