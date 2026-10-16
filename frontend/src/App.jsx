@@ -255,6 +255,7 @@ function App() {
   if (showJobs) {
     return (
       <AvailableJobs
+        jobs={jobs}
         onBack={() => {
           setShowJobs(false);
           setShowDashboard(true);
