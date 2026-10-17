@@ -57,6 +57,7 @@ app.get("/api/db-test", async (req, res) => {
 
 // =====================================
 // 4. STUDENT REGISTRATION
+
 // =====================================
 app.post("/api/students/register", async (req, res) => {
   try {
