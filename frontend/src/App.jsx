@@ -260,31 +260,49 @@ function App() {
           setShowJobs(false);
           setShowDashboard(true);
         }}
-        onApply={(job) => {
-          setApplications((previousApplications) => {
-            const alreadyApplied = previousApplications.some(
-              (application) =>
-                application.company === job.company &&
-                application.role === job.role
-            );
+        onApply={async (job) => {
+  try {
+    if (!currentStudent?.student_id) {
+      alert("Please login first.");
+      return;
+    }
 
-            if (alreadyApplied) {
-              return previousApplications;
-            }
+    const response = await fetch("http://localhost:5000/api/applications", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        student_id: currentStudent.student_id,
+        job_id: job.id,
+      }),
+    });
 
-            return [
-              ...previousApplications,
-              {
-                ...job,
-                id: Date.now(),
-                studentName: currentStudent?.name || "Student",
-                studentId: currentStudent?.student_id,
-                appliedDate: new Date().toLocaleDateString("en-IN"),
-                status: "Pending",
-              },
-            ];
-          });
-        }}
+    const data = await response.json();
+
+    if (!response.ok) {
+      alert(data.message || "Failed to apply for this job.");
+      return;
+    }
+
+    setApplications((previousApplications) => [
+      ...previousApplications,
+      {
+        ...job,
+        id: data.application.application_id,
+        studentName: currentStudent.name,
+        studentId: currentStudent.student_id,
+        appliedDate: new Date().toLocaleDateString("en-IN"),
+        status: "Pending",
+      },
+    ]);
+
+    alert("Application submitted successfully!");
+  } catch (error) {
+    console.error("Application error:", error);
+    alert("Cannot connect to the server. Please try again.");
+  }
+}}
       />
     );
   }
