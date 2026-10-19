@@ -219,7 +219,125 @@ app.post("/api/students/login", async (req, res) => {
     });
   }
 });
+// =====================================
+// 6. APPLY FOR A JOB
+// =====================================
+app.post("/api/applications", async (req, res) => {
+  try {
+    const { student_id, job_id } = req.body;
 
+    // Validate required fields
+    if (!student_id || !job_id) {
+      return res.status(400).json({
+        success: false,
+        message: "Student ID and Job ID are required.",
+      });
+    }
+
+    // Check whether student exists
+    const [students] = await db.execute(
+      "SELECT student_id FROM students WHERE student_id = ?",
+      [student_id]
+    );
+
+    if (students.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Student not found.",
+      });
+    }
+
+    // Check whether student has already applied
+    const [existingApplications] = await db.execute(
+      `SELECT application_id
+       FROM applications
+       WHERE student_id = ? AND job_id = ?`,
+      [student_id, job_id]
+    );
+
+    if (existingApplications.length > 0) {
+      return res.status(409).json({
+        success: false,
+        message: "You have already applied for this job.",
+      });
+    }
+
+    // Save application in MySQL
+    const [result] = await db.execute(
+      `INSERT INTO applications
+       (student_id, job_id, application_status)
+       VALUES (?, ?, 'Pending')`,
+      [student_id, job_id]
+    );
+
+    return res.status(201).json({
+      success: true,
+      message: "Application submitted successfully!",
+      application: {
+        application_id: result.insertId,
+        student_id,
+        job_id,
+        application_status: "Pending",
+      },
+    });
+  } catch (error) {
+    console.error("Application error:", error.message);
+
+    if (error.code === "ER_DUP_ENTRY") {
+      return res.status(409).json({
+        success: false,
+        message: "You have already applied for this job.",
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to submit application.",
+    });
+  }
+});
+
+
+// =====================================
+// 7. GET STUDENT APPLICATIONS
+// =====================================
+app.get("/api/applications/student/:studentId", async (req, res) => {
+  try {
+    const studentId = Number(req.params.studentId);
+
+    if (!Number.isInteger(studentId) || studentId <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Valid student ID is required.",
+      });
+    }
+
+    const [applications] = await db.execute(
+      `SELECT
+         application_id,
+         student_id,
+         job_id,
+         application_status,
+         applied_at
+       FROM applications
+       WHERE student_id = ?
+       ORDER BY applied_at DESC`,
+      [studentId]
+    );
+
+    return res.json({
+      success: true,
+      applications,
+    });
+  } catch (error) {
+    console.error("Fetch applications error:", error.message);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch applications.",
+    });
+  }
+});
 // =====================================
 // 6. START SERVER
 // =====================================
