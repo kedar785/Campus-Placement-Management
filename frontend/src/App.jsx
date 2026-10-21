@@ -243,6 +243,7 @@ function App() {
     return (
       <MyApplications
         applications={applications}
+         currentStudent={currentStudent}
         onBack={() => {
           setShowApplications(false);
           setShowDashboard(true);
