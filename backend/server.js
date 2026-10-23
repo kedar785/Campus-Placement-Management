@@ -350,6 +350,50 @@ app.get("/api/applications/student/:studentId", async (req, res) => {
 
 
 // =====================================
+// 8. GET ALL APPLICATIONS (ADMIN)
+// =====================================
+app.get("/api/applications", async (req, res) => {
+  try {
+    const [applications] = await db.execute(
+      `SELECT
+         a.application_id,
+         a.student_id,
+         s.name AS student_name,
+         s.email AS student_email,
+         a.job_id,
+         j.job_role,
+         c.company_name,
+         j.package_lpa,
+         j.job_location,
+         a.application_status,
+         a.applied_at
+       FROM applications a
+       JOIN students s
+         ON a.student_id = s.student_id
+       JOIN jobs j
+         ON a.job_id = j.job_id
+       JOIN companies c
+         ON j.company_id = c.company_id
+       ORDER BY a.applied_at DESC`
+    );
+
+    return res.json({
+      success: true,
+      applications,
+    });
+  } catch (error) {
+    console.error("Fetch all applications error:", error.message);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch applications.",
+    });
+  }
+});
+
+
+
+// =====================================
 // 6. START SERVER
 // =====================================
 app.listen(PORT, () => {
