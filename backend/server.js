@@ -298,6 +298,7 @@ app.post("/api/applications", async (req, res) => {
 });
 
 
+
 // =====================================
 // 7. GET STUDENT APPLICATIONS
 // =====================================
@@ -314,14 +315,22 @@ app.get("/api/applications/student/:studentId", async (req, res) => {
 
     const [applications] = await db.execute(
       `SELECT
-         application_id,
-         student_id,
-         job_id,
-         application_status,
-         applied_at
-       FROM applications
-       WHERE student_id = ?
-       ORDER BY applied_at DESC`,
+         a.application_id,
+         a.student_id,
+         a.job_id,
+         a.application_status,
+         a.applied_at,
+         j.job_role,
+         j.package_lpa,
+         j.job_location,
+         c.company_name
+       FROM applications a
+       JOIN jobs j
+         ON a.job_id = j.job_id
+       JOIN companies c
+         ON j.company_id = c.company_id
+       WHERE a.student_id = ?
+       ORDER BY a.applied_at DESC`,
       [studentId]
     );
 
@@ -338,6 +347,8 @@ app.get("/api/applications/student/:studentId", async (req, res) => {
     });
   }
 });
+
+
 // =====================================
 // 6. START SERVER
 // =====================================
