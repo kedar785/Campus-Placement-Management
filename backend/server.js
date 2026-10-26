@@ -391,6 +391,64 @@ app.get("/api/applications", async (req, res) => {
   }
 });
 
+javascript
+// =====================================
+// 9. UPDATE APPLICATION STATUS (ADMIN)
+// =====================================
+app.put("/api/applications/:applicationId/status", async (req, res) => {
+  try {
+    const applicationId = Number(req.params.applicationId);
+    const { status } = req.body;
+
+    const allowedStatuses = [
+      "Pending",
+      "Shortlisted",
+      "Selected",
+      "Rejected",
+    ];
+
+    if (!Number.isInteger(applicationId) || applicationId <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Valid application ID is required.",
+      });
+    }
+
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid application status.",
+      });
+    }
+
+    const [result] = await db.execute(
+      `UPDATE applications
+       SET application_status = ?
+       WHERE application_id = ?`,
+      [status, applicationId]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Application not found.",
+      });
+    }
+
+    return res.json({
+      success: true,
+      message: "Application status updated successfully.",
+    });
+  } catch (error) {
+    console.error("Update application status error:", error.message);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to update application status.",
+    });
+  }
+});
+
 
 
 // =====================================
