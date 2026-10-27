@@ -391,7 +391,7 @@ app.get("/api/applications", async (req, res) => {
   }
 });
 
-javascript
+
 // =====================================
 // 9. UPDATE APPLICATION STATUS (ADMIN)
 // =====================================
