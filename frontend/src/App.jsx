@@ -1,4 +1,4 @@
-import { useState, useEffect  } from "react";
+import { useState, useEffect } from "react";
 import "./App.css";
 
 import StudentRegister from "./pages/StudentRegister";
@@ -62,6 +62,42 @@ function App() {
 
   // Application data
   const [applications, setApplications] = useState([]);
+
+  // Fetch applications when the admin opens Application Management
+useEffect(() => {
+if (!showAdminApplications) return;
+
+const fetchApplications = async () => {
+try {
+const response = await fetch("http://localhost:5000/api/applications");
+const data = await response.json();
+
+
+  if (data.success) {
+    setApplications(
+      data.applications.map((app) => ({
+        ...app,
+        studentName: app.student_name,
+        company: app.company_name,
+        role: app.job_role,
+        package: `₹${Number(app.package_lpa).toFixed(2)} LPA`,
+        appliedDate: app.applied_at
+          ? new Date(app.applied_at).toLocaleDateString("en-IN")
+          : "",
+        status: app.application_status,
+      }))
+    );
+  }
+} catch (error) {
+  console.error("Applications fetch error:", error);
+}
+
+
+};
+
+fetchApplications();
+}, [showAdminApplications]);
+
 
   // Student Login API
   const handleLogin = async (e) => {
@@ -331,9 +367,6 @@ function App() {
       />
     );
   }
-
- 
-  
 
   // Login page
   return (
