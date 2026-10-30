@@ -451,6 +451,102 @@ app.put("/api/applications/:applicationId/status", async (req, res) => {
 
 
 
+
+// Create Admin account
+app.post("/api/admin/register", async (req, res) => {
+try {
+const { name, email, password } = req.body;
+
+```
+if (!name || !email || !password) {
+  return res.status(400).json({
+    success: false,
+    message: "Name, email and password are required.",
+  });
+}
+
+const [existing] = await db.execute(
+  "SELECT admin_id FROM admins WHERE email = ?",
+  [email.trim()]
+);
+
+if (existing.length > 0) {
+  return res.status(409).json({
+    success: false,
+    message: "Admin email already exists.",
+  });
+}
+
+const hashedPassword = await bcrypt.hash(password, 10);
+
+await db.execute(
+  "INSERT INTO admins (name, email, password) VALUES (?, ?, ?)",
+  [name.trim(), email.trim(), hashedPassword]
+);
+
+return res.status(201).json({
+  success: true,
+  message: "Admin account created successfully.",
+});
+```
+
+} catch (error) {
+console.error("Admin registration error:", error.message);
+return res.status(500).json({
+success: false,
+message: "Failed to create Admin account.",
+});
+}
+});
+
+// Admin Login
+app.post("/api/admin/login", async (req, res) => {
+try {
+const { email, password } = req.body;
+
+```
+if (!email || !password) {
+  return res.status(400).json({
+    success: false,
+    message: "Email and password are required.",
+  });
+}
+
+const [admins] = await db.execute(
+  "SELECT admin_id, name, email, password FROM admins WHERE email = ?",
+  [email.trim()]
+);
+
+if (
+  admins.length === 0 ||
+  !(await bcrypt.compare(password, admins[0].password))
+) {
+  return res.status(401).json({
+    success: false,
+    message: "Invalid Admin email or password.",
+  });
+}
+
+return res.json({
+  success: true,
+  message: "Admin login successful.",
+  admin: {
+    admin_id: admins[0].admin_id,
+    name: admins[0].name,
+    email: admins[0].email,
+  },
+});
+```
+
+} catch (error) {
+console.error("Admin login error:", error.message);
+return res.status(500).json({
+success: false,
+message: "Admin login failed.",
+});
+}
+});
+
 // =====================================
 // 6. START SERVER
 // =====================================
