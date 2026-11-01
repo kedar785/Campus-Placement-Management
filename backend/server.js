@@ -457,7 +457,7 @@ app.post("/api/admin/register", async (req, res) => {
 try {
 const { name, email, password } = req.body;
 
-```
+
 if (!name || !email || !password) {
   return res.status(400).json({
     success: false,
@@ -488,7 +488,7 @@ return res.status(201).json({
   success: true,
   message: "Admin account created successfully.",
 });
-```
+
 
 } catch (error) {
 console.error("Admin registration error:", error.message);
@@ -504,7 +504,7 @@ app.post("/api/admin/login", async (req, res) => {
 try {
 const { email, password } = req.body;
 
-```
+
 if (!email || !password) {
   return res.status(400).json({
     success: false,
@@ -536,7 +536,7 @@ return res.json({
     email: admins[0].email,
   },
 });
-```
+
 
 } catch (error) {
 console.error("Admin login error:", error.message);
