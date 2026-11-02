@@ -105,12 +105,50 @@ fetchApplications();
 
     setLoginMessage("");
 
+    
     if (role === "Admin") {
-      setLoginMessage(
-        "Admin login is not connected to a database yet."
-      );
+  if (!email.trim() || !password) {
+    setLoginMessage("Please enter email and password.");
+    return;
+  }
+
+  setLoading(true);
+
+  try {
+    const response = await fetch(
+      "http://localhost:5000/api/admin/login",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: email.trim(),
+          password: password,
+        }),
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      setLoginMessage(data.message || "Admin login failed.");
       return;
     }
+
+    setShowAdminDashboard(true);
+    setEmail("");
+    setPassword("");
+    setLoginMessage("");
+
+  } catch (error) {
+    setLoginMessage("Backend se connection nahi ho pa raha.");
+  } finally {
+    setLoading(false);
+  }
+
+  return;
+}
 
     if (!email.trim() || !password) {
       setLoginMessage("Please enter your email and password.");
