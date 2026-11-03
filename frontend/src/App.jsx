@@ -261,15 +261,41 @@ fetchApplications();
           setShowAdminApplications(false);
           setShowAdminDashboard(true);
         }}
-        onUpdateStatus={(application, newStatus) => {
-          setApplications((previousApplications) =>
-            previousApplications.map((item) =>
-              item === application
-                ? { ...item, status: newStatus }
-                : item
-            )
-          );
-        }}
+       onUpdateStatus={async (application, newStatus) => {
+  try {
+    const response = await fetch(
+      `http://localhost:5000/api/applications/${application.application_id}/status`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          status: newStatus,
+        }),
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      alert(data.message || "Status update failed");
+      return;
+    }
+
+    setApplications((previousApplications) =>
+      previousApplications.map((item) =>
+        item.application_id === application.application_id
+          ? { ...item, application_status: newStatus }
+          : item
+      )
+    );
+
+    alert("Application status updated successfully!");
+  } catch (error) {
+    alert("Backend connection failed");
+  }
+}}
       />
     );
   }
