@@ -166,6 +166,7 @@ function ApplicationManagement({ applications = [], onBack, onUpdateStatus }) {
                   <td style={styles.cell}>
                     <select
                       style={styles.select}
+                      
                       className={getStatusClass(application.application_status)}
                       value={application.application_status || "Pending"}
                       onChange={(e) =>
