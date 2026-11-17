@@ -348,7 +348,37 @@ app.get("/api/applications/student/:studentId", async (req, res) => {
   }
 });
 
+ // GET ALL JOBS FOR STUDENTS
+app.get("/api/jobs", async (req, res) => {
+  try {
+    const [jobs] = await db.execute(`
+      SELECT
+        j.job_id,
+        c.company_name,
+        j.job_role,
+        j.package_lpa,
+        j.minimum_cgpa,
+        j.job_location,
+        j.required_skills
+      FROM jobs j
+      JOIN companies c
+        ON j.company_id = c.company_id
+      ORDER BY j.job_id DESC
+    `);
 
+    res.json({
+      success: true,
+      jobs
+    });
+  } catch (error) {
+    console.error("Fetch jobs error:", error.message);
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch jobs."
+    });
+  }
+});
 // =====================================
 // 8. GET ALL APPLICATIONS (ADMIN)
 // =====================================
