@@ -1,3 +1,4 @@
+
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
@@ -575,6 +576,79 @@ success: false,
 message: "Admin login failed.",
 });
 }
+});
+
+
+// =====================================
+// 10. ADD JOB (ADMIN)
+// =====================================
+app.post("/api/jobs", async (req, res) => {
+  try {
+    const { company, role, package: packageLpa, location, cgpa, skills } = req.body;
+    const packageValue = Number(String(packageLpa ?? "").replace(/[^0-9.]/g, ""));
+    const cgpaValue = Number(cgpa);
+    if (!company?.trim() || !role?.trim() || !location?.trim() || !Number.isFinite(packageValue) || packageValue <= 0 || !Number.isFinite(cgpaValue) || cgpaValue < 0 || cgpaValue > 10) {
+      return res.status(400).json({ success: false, message: "Please enter valid company, role, package, location and CGPA." });
+    }
+    const [companies] = await db.execute("SELECT company_id FROM companies WHERE LOWER(company_name) = LOWER(?)", [company.trim()]);
+    if (!companies.length) return res.status(404).json({ success: false, message: "Company not found. Add this company in Company Management first." });
+    const [result] = await db.execute(
+      `INSERT INTO jobs (company_id, job_role, package_lpa, minimum_cgpa, job_location, required_skills) VALUES (?, ?, ?, ?, ?, ?)`,
+      [companies[0].company_id, role.trim(), packageValue, cgpaValue, location.trim(), (skills || "").trim()]
+    );
+    return res.status(201).json({ success: true, message: "Job added successfully!", job_id: result.insertId });
+  } catch (error) {
+    console.error("Add job error:", error.message);
+    return res.status(500).json({ success: false, message: "Failed to add job." });
+  }
+});
+
+// =====================================
+// 11. UPDATE JOB (ADMIN)
+// =====================================
+app.put("/api/jobs/:id", async (req, res) => {
+  try {
+    const jobId = Number(req.params.id);
+    const { company, role, package: packageLpa, location, cgpa, skills } = req.body;
+    const packageValue = Number(String(packageLpa ?? "").replace(/[^0-9.]/g, ""));
+    const cgpaValue = Number(cgpa);
+    if (!Number.isInteger(jobId) || jobId <= 0) return res.status(400).json({ success: false, message: "Invalid job ID." });
+    if (!company?.trim() || !role?.trim() || !location?.trim() || !Number.isFinite(packageValue) || packageValue <= 0 || !Number.isFinite(cgpaValue) || cgpaValue < 0 || cgpaValue > 10) {
+      return res.status(400).json({ success: false, message: "Please enter valid job details." });
+    }
+    const [companies] = await db.execute("SELECT company_id FROM companies WHERE LOWER(company_name) = LOWER(?)", [company.trim()]);
+    if (!companies.length) return res.status(404).json({ success: false, message: "Company not found. Add it in Company Management first." });
+    const [result] = await db.execute(
+      `UPDATE jobs SET company_id = ?, job_role = ?, package_lpa = ?, minimum_cgpa = ?, job_location = ?, required_skills = ? WHERE job_id = ?`,
+      [companies[0].company_id, role.trim(), packageValue, cgpaValue, location.trim(), (skills || "").trim(), jobId]
+    );
+    if (!result.affectedRows) {
+      const [existing] = await db.execute("SELECT job_id FROM jobs WHERE job_id = ?", [jobId]);
+      if (!existing.length) return res.status(404).json({ success: false, message: "Job not found." });
+    }
+    return res.json({ success: true, message: "Job updated successfully!" });
+  } catch (error) {
+    console.error("Update job error:", error.message);
+    return res.status(500).json({ success: false, message: "Failed to update job." });
+  }
+});
+
+// =====================================
+// 12. DELETE JOB (ADMIN)
+// =====================================
+app.delete("/api/jobs/:id", async (req, res) => {
+  try {
+    const jobId = Number(req.params.id);
+    if (!Number.isInteger(jobId) || jobId <= 0) return res.status(400).json({ success: false, message: "Invalid job ID." });
+    const [applications] = await db.execute("SELECT application_id FROM applications WHERE job_id = ? LIMIT 1", [jobId]);
+    if (applications.length) return res.status(409).json({ success: false, message: "This job has applications, so it cannot be deleted." });
+    const [result] = await db.execute("DELETE FROM jobs WHERE job_id = ?", [jobId]);
+    if (!result.affectedRows) return res.status(404).json({ success: false, message: "Job not found." });
+    return res.json({ success: true, message: "Job deleted successfully!" });
+  } catch (error) {
+    console.error("Delete job error:", error.message);
+    return res.status(500).json({ success: false, message: "Failed to delete job." });
+  }
 });
 
 // =====================================

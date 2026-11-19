@@ -59,7 +59,33 @@ function App() {
       skills: "Java, Python, SQL",
     },
   ]);
+// Fetch all jobs from MySQL
+useEffect(() => {
+  const fetchJobs = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/api/jobs");
+      const data = await response.json();
 
+      if (data.success) {
+        setJobs(
+          data.jobs.map((job) => ({
+            id: job.job_id,
+            company: job.company_name,
+            role: job.job_role,
+            package: `₹${Number(job.package_lpa).toFixed(2)} LPA`,
+            location: job.job_location,
+            cgpa: job.minimum_cgpa,
+            skills: job.required_skills,
+          }))
+        );
+      }
+    } catch (error) {
+      console.error("Jobs fetch error:", error);
+    }
+  };
+
+  fetchJobs();
+}, []);
   // Application data
   const [applications, setApplications] = useState([]);
 
