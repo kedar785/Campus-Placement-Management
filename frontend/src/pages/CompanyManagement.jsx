@@ -1,41 +1,47 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./CompanyManagement.css";
 
+const API_URL = "http://localhost:5000/api/companies";
+
 function CompanyManagement({ onBack }) {
-  const [companies, setCompanies] = useState([
-    {
-      name: "TCS",
-      role: "Graduate Engineer Trainee",
-      package: "₹7 LPA",
-      location: "Pune",
-      cgpa: "6.5",
-    },
-    {
-      name: "Infosys",
-      role: "System Engineer",
-      package: "₹6.5 LPA",
-      location: "Bengaluru",
-      cgpa: "6.0",
-    },
-    {
-      name: "Accenture",
-      role: "Associate Software Engineer",
-      package: "₹5.5 LPA",
-      location: "Indore",
-      cgpa: "6.0",
-    },
-  ]);
-
+  const [companies, setCompanies] = useState([]);
   const [showForm, setShowForm] = useState(false);
-  const [editingIndex, setEditingIndex] = useState(null);
+  const [editingId, setEditingId] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const [formData, setFormData] = useState({
+  const emptyForm = {
     name: "",
-    role: "",
-    package: "",
     location: "",
-    cgpa: "",
-  });
+    website: "",
+  };
+
+  const [formData, setFormData] = useState(emptyForm);
+
+  // Fetch companies from MySQL
+  const fetchCompanies = async () => {
+    try {
+      setLoading(true);
+      setError("");
+
+      const response = await fetch(API_URL);
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "Companies load nahi ho payi.");
+      }
+
+      setCompanies(data.companies || []);
+    } catch (err) {
+      setError(err.message || "Server se connection nahi ho paya.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCompanies();
+  }, []);
 
   const handleChange = (e) => {
     setFormData({
@@ -44,59 +50,94 @@ function CompanyManagement({ onBack }) {
     });
   };
 
-  // Add Company
-  const handleAddCompany = (e) => {
+  // Add or Update Company
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
 
-    setCompanies([...companies, formData]);
+    try {
+      const url = editingId
+        ? `${API_URL}/${editingId}`
+        : API_URL;
 
-    setFormData({
-      name: "",
-      role: "",
-      package: "",
-      location: "",
-      cgpa: "",
-    });
+      const method = editingId ? "PUT" : "POST";
 
-    setShowForm(false);
+      const response = await fetch(url, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "Company save nahi hui.");
+      }
+
+      setFormData(emptyForm);
+      setEditingId(null);
+      setShowForm(false);
+
+      await fetchCompanies();
+    } catch (err) {
+      setError(err.message || "Company save karte samay error aaya.");
+    }
   };
 
   // Start Edit
-  const handleEditCompany = (index) => {
-    setFormData(companies[index]);
-    setEditingIndex(index);
-    setShowForm(true);
-  };
-
-  // Update Company
-  const handleUpdateCompany = (e) => {
-    e.preventDefault();
-
-    const updatedCompanies = [...companies];
-
-    updatedCompanies[editingIndex] = formData;
-
-    setCompanies(updatedCompanies);
-
+  const handleEditCompany = (company) => {
     setFormData({
-      name: "",
-      role: "",
-      package: "",
-      location: "",
-      cgpa: "",
+      name: company.company_name,
+      location: company.location || "",
+      website: company.website || "",
     });
 
-    setEditingIndex(null);
-    setShowForm(false);
+    setEditingId(company.company_id);
+    setShowForm(true);
+    setError("");
   };
 
   // Delete Company
-  const handleDeleteCompany = (index) => {
-    const updatedCompanies = companies.filter(
-      (_, companyIndex) => companyIndex !== index
+  const handleDeleteCompany = async (companyId) => {
+    const confirmDelete = window.confirm(
+      "Kya aap is company ko delete karna chahte hain?"
     );
 
-    setCompanies(updatedCompanies);
+    if (!confirmDelete) return;
+
+    setError("");
+
+    try {
+      const response = await fetch(`${API_URL}/${companyId}`, {
+        method: "DELETE",
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "Company delete nahi hui.");
+      }
+
+      await fetchCompanies();
+    } catch (err) {
+      setError(err.message || "Company delete karte samay error aaya.");
+    }
+  };
+
+  const openAddForm = () => {
+    setEditingId(null);
+    setFormData(emptyForm);
+    setError("");
+    setShowForm(true);
+  };
+
+  const closeForm = () => {
+    setShowForm(false);
+    setEditingId(null);
+    setFormData(emptyForm);
+    setError("");
   };
 
   return (
@@ -116,38 +157,26 @@ function CompanyManagement({ onBack }) {
       <div className="company-actions">
         <button
           className="add-company-button"
-          onClick={() => {
-            setEditingIndex(null);
-            setFormData({
-              name: "",
-              role: "",
-              package: "",
-              location: "",
-              cgpa: "",
-            });
-            setShowForm(true);
-          }}
+          onClick={openAddForm}
         >
           + Add Company
         </button>
       </div>
 
+      {error && (
+        <p style={{ color: "red", margin: "15px 0" }}>
+          {error}
+        </p>
+      )}
+
       {showForm && (
         <div className="company-form-card">
 
           <h2>
-            {editingIndex !== null
-              ? "Edit Company"
-              : "Add New Company"}
+            {editingId ? "Edit Company" : "Add New Company"}
           </h2>
 
-          <form
-            onSubmit={
-              editingIndex !== null
-                ? handleUpdateCompany
-                : handleAddCompany
-            }
-          >
+          <form onSubmit={handleSubmit}>
 
             <label>Company Name</label>
             <input
@@ -159,47 +188,23 @@ function CompanyManagement({ onBack }) {
               required
             />
 
-            <label>Job Role</label>
-            <input
-              type="text"
-              name="role"
-              placeholder="Enter job role"
-              value={formData.role}
-              onChange={handleChange}
-              required
-            />
-
-            <label>Package</label>
-            <input
-              type="text"
-              name="package"
-              placeholder="Example: ₹8 LPA"
-              value={formData.package}
-              onChange={handleChange}
-              required
-            />
-
             <label>Location</label>
             <input
               type="text"
               name="location"
-              placeholder="Enter job location"
+              placeholder="Enter company location"
               value={formData.location}
               onChange={handleChange}
               required
             />
 
-            <label>Minimum CGPA</label>
+            <label>Website</label>
             <input
-              type="number"
-              name="cgpa"
-              placeholder="Example: 6.5"
-              step="0.1"
-              min="0"
-              max="10"
-              value={formData.cgpa}
+              type="url"
+              name="website"
+              placeholder="https://www.example.com"
+              value={formData.website}
               onChange={handleChange}
-              required
             />
 
             <div className="form-buttons">
@@ -208,18 +213,13 @@ function CompanyManagement({ onBack }) {
                 type="submit"
                 className="save-company-button"
               >
-                {editingIndex !== null
-                  ? "Update Company"
-                  : "Add Company"}
+                {editingId ? "Update Company" : "Add Company"}
               </button>
 
               <button
                 type="button"
                 className="cancel-company-button"
-                onClick={() => {
-                  setShowForm(false);
-                  setEditingIndex(null);
-                }}
+                onClick={closeForm}
               >
                 Cancel
               </button>
@@ -232,51 +232,57 @@ function CompanyManagement({ onBack }) {
 
       <div className="company-grid">
 
-        {companies.map((company, index) => (
-          <div className="company-card" key={index}>
+        {loading ? (
+          <p>Loading companies...</p>
+        ) : companies.length === 0 ? (
+          <p>No companies found. Add your first company.</p>
+        ) : (
+          companies.map((company) => (
+            <div
+              className="company-card"
+              key={company.company_id}
+            >
 
-            <div className="company-logo">
-              {company.name.charAt(0)}
+              <div className="company-logo">
+                {company.company_name.charAt(0).toUpperCase()}
+              </div>
+
+              <h2>{company.company_name}</h2>
+
+              <div className="company-details">
+
+                <p>
+                  📍 <strong>Location:</strong> {company.location}
+                </p>
+
+                <p>
+                  🌐 <strong>Website:</strong>{" "}
+                  {company.website || "Not provided"}
+                </p>
+
+              </div>
+
+              <div className="company-buttons">
+
+                <button
+                  onClick={() => handleEditCompany(company)}
+                >
+                  Edit
+                </button>
+
+                <button
+                  onClick={() =>
+                    handleDeleteCompany(company.company_id)
+                  }
+                >
+                  Delete
+                </button>
+
+              </div>
+
             </div>
-
-            <h2>{company.name}</h2>
-
-            <h3>{company.role}</h3>
-
-            <div className="company-details">
-
-              <p>
-                💰 <strong>Package:</strong> {company.package}
-              </p>
-
-              <p>
-                📍 <strong>Location:</strong> {company.location}
-              </p>
-
-              <p>
-                🎓 <strong>Minimum CGPA:</strong> {company.cgpa}
-              </p>
-
-            </div>
-
-            <div className="company-buttons">
-
-              <button
-                onClick={() => handleEditCompany(index)}
-              >
-                Edit
-              </button>
-
-              <button
-                onClick={() => handleDeleteCompany(index)}
-              >
-                Delete
-              </button>
-
-            </div>
-
-          </div>
-        ))}
+          ))
+        )}
 
       </div>
 

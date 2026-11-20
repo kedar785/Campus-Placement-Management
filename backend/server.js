@@ -651,6 +651,192 @@ app.delete("/api/jobs/:id", async (req, res) => {
   }
 });
 
+
+// =====================================
+// 13. COMPANY MANAGEMENT APIs
+// =====================================
+
+// GET ALL COMPANIES
+app.get("/api/companies", async (req, res) => {
+  try {
+    const [companies] = await db.execute(
+      `SELECT company_id, company_name, location, website
+       FROM companies
+       ORDER BY company_id DESC`
+    );
+
+    return res.json({
+      success: true,
+      companies,
+    });
+  } catch (error) {
+    console.error("Fetch companies error:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch companies.",
+    });
+  }
+});
+
+// ADD COMPANY
+app.post("/api/companies", async (req, res) => {
+  try {
+    const { name, location, website } = req.body;
+
+    if (!name?.trim() || !location?.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: "Company name and location are required.",
+      });
+    }
+
+    const [existing] = await db.execute(
+      "SELECT company_id FROM companies WHERE LOWER(company_name) = LOWER(?)",
+      [name.trim()]
+    );
+
+    if (existing.length > 0) {
+      return res.status(409).json({
+        success: false,
+        message: "Company already exists.",
+      });
+    }
+
+    const [result] = await db.execute(
+      `INSERT INTO companies (company_name, location, website)
+       VALUES (?, ?, ?)`,
+      [name.trim(), location.trim(), website?.trim() || null]
+    );
+
+    return res.status(201).json({
+      success: true,
+      message: "Company added successfully.",
+      company_id: result.insertId,
+    });
+  } catch (error) {
+    console.error("Add company error:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to add company.",
+    });
+  }
+});
+
+// UPDATE COMPANY
+app.put("/api/companies/:id", async (req, res) => {
+  try {
+    const companyId = Number(req.params.id);
+    const { name, location, website } = req.body;
+
+    if (!Number.isInteger(companyId) || companyId <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid company ID.",
+      });
+    }
+
+    if (!name?.trim() || !location?.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: "Company name and location are required.",
+      });
+    }
+
+    const [existing] = await db.execute(
+      `SELECT company_id FROM companies
+       WHERE LOWER(company_name) = LOWER(?) AND company_id != ?`,
+      [name.trim(), companyId]
+    );
+
+    if (existing.length > 0) {
+      return res.status(409).json({
+        success: false,
+        message: "Another company with this name already exists.",
+      });
+    }
+
+    const [result] = await db.execute(
+      `UPDATE companies
+       SET company_name = ?, location = ?, website = ?
+       WHERE company_id = ?`,
+      [name.trim(), location.trim(), website?.trim() || null, companyId]
+    );
+
+    if (result.affectedRows === 0) {
+      const [check] = await db.execute(
+        "SELECT company_id FROM companies WHERE company_id = ?",
+        [companyId]
+      );
+
+      if (check.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: "Company not found.",
+        });
+      }
+    }
+
+    return res.json({
+      success: true,
+      message: "Company updated successfully.",
+    });
+  } catch (error) {
+    console.error("Update company error:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to update company.",
+    });
+  }
+});
+
+// DELETE COMPANY
+app.delete("/api/companies/:id", async (req, res) => {
+  try {
+    const companyId = Number(req.params.id);
+
+    if (!Number.isInteger(companyId) || companyId <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid company ID.",
+      });
+    }
+
+    const [jobs] = await db.execute(
+      "SELECT job_id FROM jobs WHERE company_id = ? LIMIT 1",
+      [companyId]
+    );
+
+    if (jobs.length > 0) {
+      return res.status(409).json({
+        success: false,
+        message: "This company has jobs and cannot be deleted.",
+      });
+    }
+
+    const [result] = await db.execute(
+      "DELETE FROM companies WHERE company_id = ?",
+      [companyId]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Company not found.",
+      });
+    }
+
+    return res.json({
+      success: true,
+      message: "Company deleted successfully.",
+    });
+  } catch (error) {
+    console.error("Delete company error:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to delete company.",
+    });
+  }
+});
 // =====================================
 // 6. START SERVER
 // =====================================
